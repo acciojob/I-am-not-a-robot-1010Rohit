@@ -1,81 +1,48 @@
 //your code here
- <script src="./script.js">
-		
-   const images = [
-    'img1',
-    'img2',
-    'img3',
-    'img4',
-    'img5'
-   ];
+ document.addEventListener("DOMContentLoaded", () => {
+            const imageContainer = document.getElementById("image-container");
+            const resetButton = document.getElementById("reset");
+            const verifyButton = document.getElementById("verify");
+            const message = document.getElementById("para");
+            const header = document.getElementById("h");
 
-   function generateImages(){
-    var selectedImageIndex = Math.floor(Math.random()*images.length); //1 , 4,2,3, 0,5
-    var selectedImage = images[selectedImageIndex];
-    var allImages = images.concat(selectedImage);
-    var shuffledImages = allImages.sort(function(){
-        return 0.5 - Math.random();
-    });
+            let images = ["img1", "img2", "img3", "img4", "img5"];
+            let selectedImages = [];
+            let repeatedImage = images[Math.floor(Math.random() * images.length)];
+            images.push(repeatedImage);
+            images = images.sort(() => Math.random() - 0.5);
 
-    
-    var imageContainer = document.getElementById('image-container');
-    imageContainer.innerHTML = '';
-    for(var index = 0; index < shuffledImages.length; index++){
-        var imgClass = shuffledImages[index];
-        var img = document.createElement('img');
-        img.className = imgClass;
-        img.dataset.index = index;
-        img.addEventListener('click', handleImageClick);
-        imageContainer.appendChild(img);
-    }
-   }
+            images.forEach((imgClass, index) => {
+                const img = document.createElement("img");
+                img.classList.add(imgClass);
+                img.dataset.class = imgClass;
+                img.addEventListener("click", () => handleImageClick(img));
+                imageContainer.appendChild(img);
+            });
 
-   let firstClick = null;
-   let secondClick = null;
+            function handleImageClick(img) {
+                if (selectedImages.includes(img) || selectedImages.length >= 2) return;
+                selectedImages.push(img);
+                resetButton.style.display = "block";
 
-   function handleImageClick(event){
-    const clickedImage = event.target;
-    if(firstClick == clickedImage || secondClick == clickedImage ) return;
+                if (selectedImages.length === 2) {
+                    verifyButton.style.display = "block";
+                }
+            }
 
-    document.getElementById('reset').style.display = 'block';
+            resetButton.addEventListener("click", () => {
+                selectedImages = [];
+                verifyButton.style.display = "none";
+                resetButton.style.display = "none";
+                message.innerHTML = "";
+            });
 
-    if(!firstClick) {
-        firstClick = clickedImage;
-        clickedImage.classList.add('selected');
-    }else if(!secondClick){
-        secondClick = clickedImage;
-        clickedImage.classList.add('selected');
-        document.getElementById('verify').style.display = 'block';
-    }
-
-    
-   }
-
-   function reset(){
-    firstClick = null;
-    secondClick = null;
-    document.getElementById('reset').style.display = 'none';
-    document.getElementById('verify').style.display = 'none';
-    document.getElementById('para').style.display = 'none';
-    document.getElementById('image-container').innerHTML = '';
-    generateImages();
-   }
-
-   function verify(){
-    if(firstClick && secondClick){
-        if(firstClick.src === secondClick.src){
-            document.getElementById('para').innerHTML = 'Verified';
-
-        }else{
-            document.getElementById('para').innerHTML = 'Not a human';
-        }
-
-        document.getElementById('para').style.display = 'block';
-        document.getElementById('verify').style.display = 'none';
-    }
-   }
-   document.getElementById('reset').addEventListener('click', reset);
-   document.getElementById('verify').addEventListener('click', verify);
-
-   generateImages();
-	</script>
+            verifyButton.addEventListener("click", () => {
+                if (selectedImages[0].dataset.class === selectedImages[1].dataset.class) {
+                    message.innerHTML = "You are a human. Congratulations!";
+                } else {
+                    message.innerHTML = "We can't verify you as a human. You selected the non-identical tiles.";
+                }
+                verifyButton.style.display = "none";
+            });
+        });
